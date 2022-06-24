@@ -5,5 +5,13 @@ This project is building on / is an expansion of my second semester final projec
 ## Back-end
 - Spring boot -> REST API
 
+### API URIs
+/api/{authKey}/bookings
+/api/{authKey}/motorhomes
+
+/api/{authKey}/bookings/{id}
+/api/{authKey}/bookings/{status} (e.g. active, past, upcoming)
+
+
 ## Front-end
 - React.js
