@@ -1,7 +1,7 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.SystemVariable;
-import com.spring.nordicmotorhomes.repository.SystemVariableRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.SystemVariable;
+import com.spring.nordic_motorhomes_apiimpl.Repository.SystemVariableRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 
-import com.spring.nordicmotorhomes.Entity.Employee;
-import com.spring.nordicmotorhomes.repository.EmployeeRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Employee;
+import com.spring.nordic_motorhomes_apiimpl.Repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;

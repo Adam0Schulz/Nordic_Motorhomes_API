@@ -1,8 +1,8 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.Booking;
-import com.spring.nordicmotorhomes.Entity.CancellationFee;
-import com.spring.nordicmotorhomes.repository.CancellationFeeRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
+import com.spring.nordic_motorhomes_apiimpl.Entity.CancellationFee;
+import com.spring.nordic_motorhomes_apiimpl.Repository.CancellationFeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

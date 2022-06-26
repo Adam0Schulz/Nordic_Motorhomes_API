@@ -1,5 +1,6 @@
 package com.spring.nordic_motorhomes_apiimpl.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -27,6 +28,7 @@ public class CancellationFee {
     )
     private int ID;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "fee")
     private Set<CancelledBooking> cancelledBookings;
 

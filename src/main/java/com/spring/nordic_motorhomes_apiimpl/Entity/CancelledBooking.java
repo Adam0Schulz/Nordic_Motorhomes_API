@@ -1,5 +1,6 @@
 package com.spring.nordic_motorhomes_apiimpl.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -26,6 +27,7 @@ public class CancelledBooking {
     )
     private int ID;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "bookingID", referencedColumnName = "ID")
     private Booking booking;

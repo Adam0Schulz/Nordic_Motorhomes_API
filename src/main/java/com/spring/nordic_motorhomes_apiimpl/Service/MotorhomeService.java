@@ -1,10 +1,10 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.Booking;
-import com.spring.nordicmotorhomes.Entity.Motorhome;
-import com.spring.nordicmotorhomes.Entity.MotorhomeToCheck;
-import com.spring.nordicmotorhomes.Entity.MotorhomeToClean;
-import com.spring.nordicmotorhomes.repository.MotorhomeRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Motorhome;
+import com.spring.nordic_motorhomes_apiimpl.Entity.MotorhomeToCheck;
+import com.spring.nordic_motorhomes_apiimpl.Entity.MotorhomeToClean;
+import com.spring.nordic_motorhomes_apiimpl.Repository.MotorhomeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,10 +39,7 @@ public class MotorhomeService {
     // Checks if given motorhome is available
     public boolean isAvailableOn(Motorhome motorhome, LocalDate date) {
         List<Motorhome> availableMotorhomes = getAllAvailableMotorhomesOn(date);
-        if(availableMotorhomes.contains(motorhome)) {
-            return true;
-        }
-        return false;
+        return availableMotorhomes.contains(motorhome);
     }
 
     // Get all available motorhomes on specific date
@@ -73,7 +70,7 @@ public class MotorhomeService {
 
     //Get all available motorhomes during given a period
     public List<Motorhome> getAllAvailableMotorhomesDuring(LocalDate start, LocalDate end) {
-        List<Motorhome> availableMotorhomes = new ArrayList<Motorhome>();
+        List<Motorhome> availableMotorhomes = new ArrayList<>();
         List<Motorhome> allMotorhomes = getAllMotorhomes();
         for(Motorhome motorhome : allMotorhomes) {
             if(isAvailableDuring(motorhome, start, end)) {
@@ -94,10 +91,7 @@ public class MotorhomeService {
             }
         }
 
-        if(available) {
-            return true;
-        }
-        return false;
+        return available;
     }
 
     // Add to check - sets the motorhome to be checked

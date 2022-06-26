@@ -1,7 +1,7 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.Season;
-import com.spring.nordicmotorhomes.repository.SeasonRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Season;
+import com.spring.nordic_motorhomes_apiimpl.Repository.SeasonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

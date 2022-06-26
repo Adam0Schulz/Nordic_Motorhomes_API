@@ -1,6 +1,6 @@
 package com.spring.nordic_motorhomes_apiimpl.Repository;
 
-import com.spring.nordicmotorhomes.Entity.Booking;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

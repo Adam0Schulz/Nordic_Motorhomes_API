@@ -1,8 +1,8 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.*;
-import com.spring.nordicmotorhomes.repository.BookingRepository;
-import com.spring.nordicmotorhomes.repository.CancelledBookingRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.*;
+import com.spring.nordic_motorhomes_apiimpl.Repository.BookingRepository;
+import com.spring.nordic_motorhomes_apiimpl.Repository.CancelledBookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -19,33 +19,36 @@ import java.util.Set;
 @Service
 public class BookingService {
 
-    @Autowired
     private BookingRepository bookingRepository;
-
-    @Autowired
     private MotorhomeService motorhomeService;
-
-    @Autowired
     private EmployeeService employeeService;
-
-    @Autowired
     private ExtraService extraService;
-
-    @Autowired
     private CustomerService customerService;
-
-    @Autowired
     private SeasonService seasonService;
-
-    @Autowired
     private SystemVariableService systemVariableService;
-
-    @Autowired
     private CancelledBookingRepository cancelledBookingRepository;
-
-    @Autowired
     private CancellationFeeService cancellationFeeService;
 
+    @Autowired
+    public BookingService (BookingRepository bookingRepository,
+                           MotorhomeService motorhomeService,
+                           EmployeeService employeeService,
+                           ExtraService extraService,
+                           CustomerService customerService,
+                           SeasonService seasonService,
+                           SystemVariableService systemVariableService,
+                           CancelledBookingRepository cancelledBookingRepository,
+                           CancellationFeeService cancellationFeeService) {
+        this.bookingRepository = bookingRepository;
+        this.motorhomeService = motorhomeService;
+        this.employeeService = employeeService;
+        this.extraService = extraService;
+        this.customerService = customerService;
+        this.seasonService = seasonService;
+        this.systemVariableService = systemVariableService;
+        this.cancelledBookingRepository = cancelledBookingRepository;
+        this.cancellationFeeService = cancellationFeeService;
+    }
 
     // Create booking - creates and saves booking
     public Booking createBooking( Set<Extra> extras, Customer customer, Motorhome motorhome, Employee employee, Date start, Date end, String pickUp, Time pickUpTime, String dropOff, double total) {
@@ -75,6 +78,10 @@ public class BookingService {
         return newBooking;
     }
 
+    // Save booking - saves booking (overload)
+    public void saveBooking(Booking booking) {
+        bookingRepository.save(booking);
+    }
     // Cancel booking
     public Booking cancelBooking(long bookingID) {
 
@@ -102,16 +109,16 @@ public class BookingService {
     }
 
     // Update booking
-    public Booking updateBooking(Booking booking) {
-        bookingRepository.save(booking);
-        return booking;
+    public Booking updateBooking(String ID, Booking booking) {
+        return booking.setID(ID) ? bookingRepository.save(booking) : null;
     }
 
     // Delete booking
-    public void deleteBooking(long bookingID) {
-        bookingRepository.deleteById(bookingID);
+    public void deleteBooking(String ID) {
+        bookingRepository.deleteById(Booking.idConvert(ID));
     }
 
+    // Potentionally redundant
     // Add booking - creates customer if they don't exist and creates booking (return true/false depending on if everything's alright)
     public Booking addBooking(int customerCpr, String customerFirst, String customerLast, int customerPhone, Date start, Date end, long motorhomeID, Set<Integer> extraIDs, String pickUp, String dropOff, Time pickUpTime, long empID) {
 
@@ -162,7 +169,7 @@ public class BookingService {
     }
 
     // Get booking by ID
-    public Booking getBookingByName(long id) {
+    public Booking getBookingById(long id) {
         return bookingRepository.findById(id).orElse(null);
     }
 
@@ -422,10 +429,5 @@ public class BookingService {
 
         booking.setTotalPrice(total);
         return booking;
-    }
-
-    // Get booking by id
-    public Booking getBookingById(long id) {
-        return bookingRepository.findById(id).orElse(null);
     }
 }

@@ -1,5 +1,6 @@
 package com.spring.nordic_motorhomes_apiimpl.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -28,6 +29,7 @@ public class ActiveBooking {
     private long ID;
 
     //  Foreign key
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "bookingID", referencedColumnName = "ID")
     private Booking booking;

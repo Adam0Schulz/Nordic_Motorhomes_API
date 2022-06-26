@@ -1,7 +1,7 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordicmotorhomes.Entity.Customer;
-import com.spring.nordicmotorhomes.repository.CustomerRepository;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Customer;
+import com.spring.nordic_motorhomes_apiimpl.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
