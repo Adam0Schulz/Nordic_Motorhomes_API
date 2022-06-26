@@ -80,31 +80,11 @@ public class Booking {
     private double totalPrice;
     private double fuelLevel;
 
-    @Tolerate // due to overloading lombok setter
-    public boolean setID(String ID) {
-        Long id;
-        try {
-            id = idConvert(ID);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        setID(id);
-        return true;
-
-    }
-
-
-
     public void addExtra(Extra extra) {
         extras.add(extra);
     }
 
     public String toString() {
         return getID() + getCustomer().toString() + getMotorhome().toString() + getTotalPrice();
-    }
-
-    public static Long idConvert(String ID) throws NumberFormatException{
-        return (long) Integer.parseInt(ID);
     }
 }

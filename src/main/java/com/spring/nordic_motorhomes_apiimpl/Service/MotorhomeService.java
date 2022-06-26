@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
 @Service
 public class MotorhomeService {
 
-    @Autowired
-    private MotorhomeRepository motorhomeRepository;
+
+    private final MotorhomeRepository motorhomeRepository;
+    private final SystemVariableService systemVariableService;
 
     @Autowired
-    private BookingService bookingService;
-
-    @Autowired
-    private SystemVariableService systemVariableService;
+    public MotorhomeService(MotorhomeRepository motorhomeRepository,
+                            SystemVariableService systemVariableService) {
+        this.motorhomeRepository = motorhomeRepository;
+        this.systemVariableService = systemVariableService;
+    }
 
 
 
@@ -37,13 +39,13 @@ public class MotorhomeService {
     public List<Motorhome> getAllMotorhomes() { return motorhomeRepository.findAll(); }
 
     // Checks if given motorhome is available
-    public boolean isAvailableOn(Motorhome motorhome, LocalDate date) {
+    /*public boolean isAvailableOn(Motorhome motorhome, LocalDate date) {
         List<Motorhome> availableMotorhomes = getAllAvailableMotorhomesOn(date);
         return availableMotorhomes.contains(motorhome);
-    }
+    }*/
 
     // Get all available motorhomes on specific date
-    public List<Motorhome> getAllAvailableMotorhomesOn(LocalDate date) {
+    /*public List<Motorhome> getAllAvailableMotorhomesOn(LocalDate date) {
 
         List<Motorhome> availableMotorhomes = new ArrayList<>();
         List<Motorhome> motorhomes = getAllMotorhomes();
@@ -66,10 +68,10 @@ public class MotorhomeService {
         }
 
         return availableMotorhomes;
-    }
+    }*/
 
     //Get all available motorhomes during given a period
-    public List<Motorhome> getAllAvailableMotorhomesDuring(LocalDate start, LocalDate end) {
+    /*public List<Motorhome> getAllAvailableMotorhomesDuring(LocalDate start, LocalDate end) {
         List<Motorhome> availableMotorhomes = new ArrayList<>();
         List<Motorhome> allMotorhomes = getAllMotorhomes();
         for(Motorhome motorhome : allMotorhomes) {
@@ -78,10 +80,10 @@ public class MotorhomeService {
             }
         }
         return availableMotorhomes;
-    }
+    }*/
 
     // Checks if the motorhome is available during a given period
-    public boolean isAvailableDuring(Motorhome motorhome, LocalDate startDate, LocalDate endDate) {
+    /*public boolean isAvailableDuring(Motorhome motorhome, LocalDate startDate, LocalDate endDate) {
         // Gets all dates in between two dates in a list
         List<LocalDate> dates =  startDate.datesUntil(endDate).collect(Collectors.toList());
         boolean available = true;
@@ -92,7 +94,7 @@ public class MotorhomeService {
         }
 
         return available;
-    }
+    }*/
 
     // Add to check - sets the motorhome to be checked
     public boolean addToCheck(long motorhomeID) {

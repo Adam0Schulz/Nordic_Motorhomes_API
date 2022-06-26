@@ -19,15 +19,15 @@ import java.util.Set;
 @Service
 public class BookingService {
 
-    private BookingRepository bookingRepository;
-    private MotorhomeService motorhomeService;
-    private EmployeeService employeeService;
-    private ExtraService extraService;
-    private CustomerService customerService;
-    private SeasonService seasonService;
-    private SystemVariableService systemVariableService;
-    private CancelledBookingRepository cancelledBookingRepository;
-    private CancellationFeeService cancellationFeeService;
+    private final BookingRepository bookingRepository;
+    private final MotorhomeService motorhomeService;
+    private final EmployeeService employeeService;
+    private final ExtraService extraService;
+    private final CustomerService customerService;
+    private final SeasonService seasonService;
+    private final SystemVariableService systemVariableService;
+    private final CancelledBookingRepository cancelledBookingRepository;
+    private final CancellationFeeService cancellationFeeService;
 
     @Autowired
     public BookingService (BookingRepository bookingRepository,
@@ -109,18 +109,19 @@ public class BookingService {
     }
 
     // Update booking
-    public Booking updateBooking(String ID, Booking booking) {
-        return booking.setID(ID) ? bookingRepository.save(booking) : null;
+    public Booking updateBooking(Long ID, Booking booking) {
+        booking.setID(ID);
+        return bookingRepository.existsById(ID) ? bookingRepository.save(booking) : null;
     }
 
     // Delete booking
-    public void deleteBooking(String ID) {
-        bookingRepository.deleteById(Booking.idConvert(ID));
+    public void deleteBooking(Long ID) {
+        bookingRepository.deleteById(ID);
     }
 
     // Potentionally redundant
     // Add booking - creates customer if they don't exist and creates booking (return true/false depending on if everything's alright)
-    public Booking addBooking(int customerCpr, String customerFirst, String customerLast, int customerPhone, Date start, Date end, long motorhomeID, Set<Integer> extraIDs, String pickUp, String dropOff, Time pickUpTime, long empID) {
+    /*public Booking addBooking(int customerCpr, String customerFirst, String customerLast, int customerPhone, Date start, Date end, long motorhomeID, Set<Integer> extraIDs, String pickUp, String dropOff, Time pickUpTime, long empID) {
 
         // Set up
         Motorhome motorhome = motorhomeService.getMotorhomeById(motorhomeID);
@@ -139,7 +140,7 @@ public class BookingService {
         Booking booking = createBooking(extras, c, motorhome, employee, start, end, pickUp, pickUpTime, dropOff, total);
 
         return booking;
-    }
+    }*/
 
 
     // Get all the bookings
@@ -390,19 +391,8 @@ public class BookingService {
 
     // Picked up - adds given booking to active bookings
     public Booking pickedUp(long bookingID) {
+        return addToActive(bookingID);
 
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        if(booking == null) {
-            return null;
-        }
-        ActiveBooking activeBooking = ActiveBooking.builder()
-                .booking(booking)
-                .build();
-        booking.setFutureBooking(null);
-        booking.setActiveBooking(activeBooking);
-        bookingRepository.save(booking);
-
-        return booking;
     }
 
     // Dropped off - moves motorhome attached to given booking to motorhomes to be checked
@@ -429,5 +419,45 @@ public class BookingService {
 
         booking.setTotalPrice(total);
         return booking;
+    }
+
+    // Add to active - moves booking with given id to active bookings
+    public Booking addToActive(long bookingID) {
+        Booking booking = bookingRepository.findById(bookingID).orElse(null);
+        if(booking == null) {
+            return null;
+        }
+        ActiveBooking activeBooking = ActiveBooking.builder()
+                .booking(booking)
+                .build();
+        booking.setPastBooking(null);
+        booking.setFutureBooking(null);
+        booking.setActiveBooking(activeBooking);
+        bookingRepository.save(booking);
+
+        return booking;
+    }
+
+    // Add to past - moves booking with given id to past bookings
+    public Booking addToPast(long bookingID) {
+        Booking booking = bookingRepository.findById(bookingID).orElse(null);
+        if(booking == null) {
+            return null;
+        }
+        PastBooking pastBooking = PastBooking.builder()
+                .booking(booking)
+                .build();
+        booking.setPastBooking(pastBooking);
+        booking.setFutureBooking(null);
+        booking.setActiveBooking(null);
+        bookingRepository.save(booking);
+
+        return booking;
+    }
+
+    // not finished
+    public String getStatus(long bookingID) {
+
+        return null;
     }
 }
