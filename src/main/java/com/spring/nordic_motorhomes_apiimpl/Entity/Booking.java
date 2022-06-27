@@ -46,26 +46,20 @@ public class Booking {
     private Customer customer;
 
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "motorhomeID", referencedColumnName = "ID")
     private Motorhome motorhome;
 
+    @ManyToOne
+    @JoinColumn(name = "statusID", referencedColumnName = "ID")
+    private Status status;
 
     @ManyToOne()
     @JoinColumn(name = "employeeID", referencedColumnName = "ID")
     private Employee employee;
 
 
-    @OneToOne(mappedBy = "booking")
-    private ActiveBooking activeBooking;
 
-
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
-    private FutureBooking futureBooking;
-
-
-    @OneToOne(mappedBy = "booking")
-    private PastBooking pastBooking;
 
     @OneToOne(mappedBy = "booking")
     private CancelledBooking cancelledBooking;

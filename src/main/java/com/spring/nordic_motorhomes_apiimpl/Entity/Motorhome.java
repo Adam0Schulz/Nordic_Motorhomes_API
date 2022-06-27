@@ -35,11 +35,9 @@ public class Motorhome {
     @OneToMany(mappedBy = "motorhome")
     private Set<Booking> bookings = new HashSet<>();
 
-    @OneToOne(mappedBy = "motorhome")
-    private MotorhomeToCheck motorhomeToCheck;
-
-    @OneToOne(mappedBy = "motorhome")
-    private MotorhomeToClean motorhomeToClean;
+    @ManyToOne
+    @JoinColumn(name = "statusID", referencedColumnName = "ID")
+    private Status status;
 
     //  Other Attributes
     private String brand;
@@ -50,9 +48,5 @@ public class Motorhome {
     private int mileage;
     private String vehicleCategory;
     private String image;
-
-    public String toString() {
-        return getBrand() + getModel() + getRegNumber();
-    }
 
 }

@@ -51,10 +51,11 @@ public class BookingService {
     }
 
     // Create booking - creates and saves booking
-    public Booking createBooking( Set<Extra> extras, Customer customer, Motorhome motorhome, Employee employee, Date start, Date end, String pickUp, Time pickUpTime, String dropOff, double total) {
+    /*public Booking createBooking( Set<Extra> extras, Customer customer, Motorhome motorhome, Employee employee, Date start, Date end, String pickUp, Time pickUpTime, String dropOff, double total) {
 
         // Creating new booking
         Booking newBooking = Booking.builder()
+                .status(1)
                 .extras(extras)
                 .customer(customer)
                 .motorhome(motorhome)
@@ -67,16 +68,9 @@ public class BookingService {
                 .totalPrice(total)
                 .build();
 
-        // Creating future booking
-        FutureBooking futureBooking = FutureBooking.builder()
-                .booking(newBooking)
-                .build();
-
-        // saving data to database
-        newBooking.setFutureBooking(futureBooking);
         bookingRepository.save(newBooking);
         return newBooking;
-    }
+    }*/
 
     // Save booking - saves booking (overload)
     public void saveBooking(Booking booking) {
@@ -89,7 +83,7 @@ public class BookingService {
         CancellationFee fee = cancellationFeeService.selectFee(booking);
 
         // Error handling
-        if(booking == null || booking.getPastBooking() != null || fee == null) {
+        if(booking == null || /*booking.getPastBooking() != null ||*/ fee == null) {
             return null;
         }
 
@@ -101,8 +95,8 @@ public class BookingService {
 
         // Updating and saving of the booking
         booking.setCancelledBooking(cancelledBooking);
-        booking.setFutureBooking(null);
-        booking.setActiveBooking(null);
+        /*booking.setFutureBooking(null);
+        booking.setActiveBooking(null);*/
         bookingRepository.save(booking);
 
         return booking;
@@ -195,9 +189,9 @@ public class BookingService {
         List<Booking> bookings = new ArrayList<>();
         List<Booking> allBookings = getAllBookings();
         for(Booking booking : allBookings) {
-            if(booking.getActiveBooking() != null) {
+            /*if(booking.getActiveBooking() != null) {
                 bookings.add(booking);
-            }
+            }*/
         }
         return bookings;
     }
@@ -239,9 +233,9 @@ public class BookingService {
         List<Booking> bookings = new ArrayList<>();
         List<Booking> allBookings = getAllBookings();
         for(Booking booking : allBookings) {
-            if(booking.getFutureBooking() != null) {
+            /*if(booking.getFutureBooking() != null) {
                 bookings.add(booking);
-            }
+            }*/
         }
         return bookings;
     }
@@ -281,9 +275,9 @@ public class BookingService {
         List<Booking> bookings = new ArrayList<>();
         List<Booking> allBookings = getAllBookings();
         for(Booking booking : allBookings) {
-            if(booking.getPastBooking() != null) {
+            /*if(booking.getPastBooking() != null) {
                 bookings.add(booking);
-            }
+            }*/
         }
         return bookings;
     }
@@ -396,17 +390,17 @@ public class BookingService {
     }
 
     // Dropped off - moves motorhome attached to given booking to motorhomes to be checked
-    public Booking droppedOff(long bookingID) {
+    /*public Booking droppedOff(long bookingID) {
         Booking booking = bookingRepository.findById(bookingID).orElse(null);
         if(booking == null) {
             return null;
         }
         motorhomeService.addToCheck(booking.getMotorhome().getID());
         return booking;
-    }
+    }*/
 
     // Dropped off - moves motorhome attached to given booking to motorhomes to be checked (adds additional kilometers fee to the total of the booking)
-    public Booking droppedOff(long bookingID, int additionalKilometers) {
+    /*public Booking droppedOff(long bookingID, int additionalKilometers) {
         Booking booking = bookingRepository.findById(bookingID).orElse(null);
         if(booking == null) {
             return null;
@@ -419,7 +413,7 @@ public class BookingService {
 
         booking.setTotalPrice(total);
         return booking;
-    }
+    }*/
 
     // Add to active - moves booking with given id to active bookings
     public Booking addToActive(long bookingID) {
@@ -427,19 +421,19 @@ public class BookingService {
         if(booking == null) {
             return null;
         }
-        ActiveBooking activeBooking = ActiveBooking.builder()
+        /*ActiveBooking activeBooking = ActiveBooking.builder()
                 .booking(booking)
                 .build();
         booking.setPastBooking(null);
         booking.setFutureBooking(null);
-        booking.setActiveBooking(activeBooking);
+        booking.setActiveBooking(activeBooking);*/
         bookingRepository.save(booking);
 
         return booking;
     }
 
     // Add to past - moves booking with given id to past bookings
-    public Booking addToPast(long bookingID) {
+    /*public Booking addToPast(long bookingID) {
         Booking booking = bookingRepository.findById(bookingID).orElse(null);
         if(booking == null) {
             return null;
@@ -453,7 +447,7 @@ public class BookingService {
         bookingRepository.save(booking);
 
         return booking;
-    }
+    }*/
 
     // not finished
     public String getStatus(long bookingID) {

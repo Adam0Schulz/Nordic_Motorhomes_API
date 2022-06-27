@@ -2,8 +2,6 @@ package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Motorhome;
-import com.spring.nordic_motorhomes_apiimpl.Entity.MotorhomeToCheck;
-import com.spring.nordic_motorhomes_apiimpl.Entity.MotorhomeToClean;
 import com.spring.nordic_motorhomes_apiimpl.Repository.MotorhomeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -97,7 +95,7 @@ public class MotorhomeService {
     }*/
 
     // Add to check - sets the motorhome to be checked
-    public boolean addToCheck(long motorhomeID) {
+    /*public boolean addToCheck(long motorhomeID) {
         Motorhome motorhome = motorhomeRepository.findById(motorhomeID).orElse(null);
         if(motorhome == null || motorhome.getMotorhomeToClean() != null) {
             return false;
@@ -127,7 +125,7 @@ public class MotorhomeService {
         motorhomeRepository.save(motorhome);
 
         return true;
-    }
+    }*/
 
     // Create a motorhome
     public Motorhome createMotorhome(double basePrice, String brand, int capacity, int mileage, String model, String regNum) {
