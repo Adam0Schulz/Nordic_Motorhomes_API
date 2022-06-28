@@ -2,6 +2,7 @@ package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Motorhome;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Status;
 import com.spring.nordic_motorhomes_apiimpl.Repository.MotorhomeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -139,6 +140,12 @@ public class MotorhomeService {
                 .build();
         motorhomeRepository.save(newMotorhome);
         return newMotorhome;
+    }
+
+    // Get status
+    public Status getStatus(Long id) {
+        Motorhome motorhome = motorhomeRepository.findById(id).orElse(null);
+        return motorhome == null ? null : motorhome.getStatus();
     }
 
 }

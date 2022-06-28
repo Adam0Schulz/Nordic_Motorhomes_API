@@ -449,9 +449,9 @@ public class BookingService {
         return booking;
     }*/
 
-    // not finished
-    public String getStatus(long bookingID) {
 
-        return null;
+    public Status getStatus(long bookingID) {
+        Booking booking = bookingRepository.findById(bookingID).orElse(null);
+        return booking == null ? null : booking.getStatus();
     }
 }
