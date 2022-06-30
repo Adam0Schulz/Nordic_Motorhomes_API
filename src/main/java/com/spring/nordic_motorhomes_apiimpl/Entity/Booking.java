@@ -1,13 +1,14 @@
 package com.spring.nordic_motorhomes_apiimpl.Entity;
 
 import lombok.*;
-import lombok.experimental.Tolerate;
 
 import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 // Adam
 @Entity
@@ -38,7 +39,7 @@ public class Booking {
             joinColumns = @JoinColumn(name = "booking_ID"),
             inverseJoinColumns = @JoinColumn(name = "extra_ID")
     )
-    private Set<Extra> extras = new HashSet<>();
+    private List<Extra> extras = new ArrayList<>();
 
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -62,7 +63,7 @@ public class Booking {
 
 
     @OneToOne(mappedBy = "booking")
-    private CancelledBooking cancelledBooking;
+    private Cancellation cancellation;
 
 
     //  Other Attributes
@@ -76,6 +77,23 @@ public class Booking {
 
     public void addExtra(Extra extra) {
         extras.add(extra);
+    }
+
+    public boolean isContainingDate(LocalDate date) {
+        return (startDate.toLocalDate().isBefore(date) || startDate.toLocalDate().isEqual(date))
+                && (endDate.toLocalDate().isAfter(date) || endDate.toLocalDate().isEqual(date));
+    }
+
+    public boolean isContainingDate(LocalDate date, int buffer) {
+        LocalDate startDate = getStartDate().toLocalDate();
+        LocalDate endDate = getEndDate().toLocalDate().plus(buffer, ChronoUnit.DAYS);
+        return (startDate.isBefore(date) || startDate.isEqual(date))
+                && (endDate.isAfter(date) || endDate.isEqual(date));
+    }
+
+    public boolean isContainingDate(LocalDate date, double doubleBuffer) {
+        int buffer = (int) Math.round(doubleBuffer);
+        return isContainingDate(date, buffer);
     }
 
     public String toString() {

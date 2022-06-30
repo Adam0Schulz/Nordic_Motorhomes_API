@@ -24,7 +24,7 @@ public class Season {
     @GeneratedValue(strategy= GenerationType.SEQUENCE,
             generator = "season_sequence"
     )
-    private int ID;
+    private long ID;
 
     //  Other Attributes
     private String name;

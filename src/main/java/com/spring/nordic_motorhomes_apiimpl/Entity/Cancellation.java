@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Optional;
 
 // Wanesa
 @Entity
@@ -13,8 +14,8 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "cancelled_bookings") // Naming the database table
-public class CancelledBooking {
+@Table(name = "cancellations") // Naming the database table
+public class Cancellation {
     // Attributes/Columns
     //  Primary key
     @Id
@@ -25,14 +26,18 @@ public class CancelledBooking {
     @GeneratedValue(strategy= GenerationType.SEQUENCE,
             generator = "cancelledBooking_sequence"
     )
-    private int ID;
+    private long ID;
 
     @JsonIgnore
-    @OneToOne
-    @JoinColumn(name = "bookingID", referencedColumnName = "ID")
+    @OneToOne    @JoinColumn(name = "bookingID", referencedColumnName = "ID")
     private Booking booking;
 
     @ManyToOne
     @JoinColumn(name = "feeID", referencedColumnName = "ID")
     private CancellationFee fee;
+
+
+    public Optional<CancellationFee> getFee() {
+        return fee == null ? Optional.empty() : Optional.of(fee);
+    }
 }

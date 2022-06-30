@@ -6,37 +6,50 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 // Adam
 @Service
 public class SystemVariableService {
 
-    @Autowired
-    private SystemVariableRepository systemVariableRepository;
+    // Dependencies
+    private final SystemVariableRepository systemVariableRepo;
 
+    @Autowired
+    public SystemVariableService(SystemVariableRepository systemVariableRepo) {
+        this.systemVariableRepo = systemVariableRepo;
+    }
+
+    // Save a variable
+    public SystemVariable save(SystemVariable systemVariable) {
+        return systemVariableRepo.save(systemVariable);
+    }
+
+    // Get a variable
+    public Optional<SystemVariable> get(Long id) {
+        return systemVariableRepo.findById(id);
+    }
+
+    // Get a variables value - by name
+    public double get(String variable) {
+        return systemVariableRepo.findByName(variable).map(SystemVariable::getValue).orElse(0.0);
+    }
 
     // Get all variables
-    public List<SystemVariable> getAllVariables () {
-        return systemVariableRepository.findAll();
+    public List<SystemVariable> getAll () {
+        return systemVariableRepo.findAll();
     }
 
-    // Get motorhome availability buffer - returns the value of the variable
-    public double getMotorhomeAvailabilityBuffer() {
-        return systemVariableRepository.findByName("motorhome availability buffer").get().getValue();
+    // Update a variable
+    public Optional<SystemVariable> update(Long id, SystemVariable variable) {
+        variable.setID(id);
+        return !(systemVariableRepo.existsById(id))
+                ? Optional.empty()
+                : Optional.of(save(variable));
     }
 
-    // Get additional kilometer fee - returns the value of the variable
-    public double getAdditionalKilometerFee() {
-        return systemVariableRepository.findByName("additional drop-off kilometer fee").get().getValue();
-    }
+    // Delete a variable
+    public void delete(Long id) { systemVariableRepo.deleteById(id); }
 
-    // Create variable
-    public SystemVariable createVariable(String name, double value) {
-        SystemVariable newVariable = SystemVariable.builder()
-                .name(name)
-                .value(value)
-                .build();
-        systemVariableRepository.save(newVariable);
-        return newVariable;
-    }
+
 }

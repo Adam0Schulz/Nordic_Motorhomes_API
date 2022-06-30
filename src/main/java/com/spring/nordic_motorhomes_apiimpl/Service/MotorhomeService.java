@@ -1,151 +1,103 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
-import com.spring.nordic_motorhomes_apiimpl.Entity.Booking;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Motorhome;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Status;
+import com.spring.nordic_motorhomes_apiimpl.Entity.SystemVariable;
 import com.spring.nordic_motorhomes_apiimpl.Repository.MotorhomeRepository;
+import com.spring.nordic_motorhomes_apiimpl.Service.StatusService;
+import com.spring.nordic_motorhomes_apiimpl.Service.SystemVariableService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
-// Adam Simona
 @Service
 public class MotorhomeService {
 
-
-    private final MotorhomeRepository motorhomeRepository;
-    private final SystemVariableService systemVariableService;
+    // Dependencies
+    private final MotorhomeRepository motorhomeRepo;
+    private final SystemVariableService systemVariableSer;
+    private final StatusService statusSer;
 
     @Autowired
-    public MotorhomeService(MotorhomeRepository motorhomeRepository,
-                            SystemVariableService systemVariableService) {
-        this.motorhomeRepository = motorhomeRepository;
-        this.systemVariableService = systemVariableService;
+    public MotorhomeService(MotorhomeRepository motorhomeRepo,
+                            SystemVariableService systemVariableSer,
+                            StatusService statusSer) {
+        this.motorhomeRepo = motorhomeRepo;
+        this.systemVariableSer = systemVariableSer;
+        this.statusSer = statusSer;
     }
 
+    // Save motorhome
+    public Motorhome save(Motorhome motorhome) {
+        return motorhomeRepo.save(motorhome);
+    }
 
-
-    // Get motorhome by id
-    public Motorhome getMotorhomeById(long id) {
-        return motorhomeRepository.findById(id).orElse(null);
+    // Get motorhome
+    public Optional<Motorhome> get(Long id) {
+        return motorhomeRepo.findById(id);
     }
 
     // Get all motorhomes
-    public List<Motorhome> getAllMotorhomes() { return motorhomeRepository.findAll(); }
+    public List<Motorhome> getAll() { return motorhomeRepo.findAll(); }
 
-    // Checks if given motorhome is available
-    /*public boolean isAvailableOn(Motorhome motorhome, LocalDate date) {
-        List<Motorhome> availableMotorhomes = getAllAvailableMotorhomesOn(date);
-        return availableMotorhomes.contains(motorhome);
-    }*/
+    // Update motorhome
+    public Optional<Motorhome> update(Long id, Motorhome motorhome) {
+        motorhome.setID(id);
+        return !(motorhomeRepo.existsById(id)) ? Optional.empty() : Optional.of(save(motorhome));
+    }
 
-    // Get all available motorhomes on specific date
-    /*public List<Motorhome> getAllAvailableMotorhomesOn(LocalDate date) {
+    // Delete motorhome
+    public void delete(Long id) { motorhomeRepo.deleteById(id); }
 
-        List<Motorhome> availableMotorhomes = new ArrayList<>();
-        List<Motorhome> motorhomes = getAllMotorhomes();
-        int bufferDays = (int) systemVariableService.getMotorhomeAvailabilityBuffer();
-        boolean available;
+    // Check availability on a given date
+    public boolean isAvailable(Long id, LocalDate date) {
+        Optional<Motorhome> motorhome = get(id);
 
-        for (Motorhome motorhome : motorhomes) {
-            available = true;
-            List<Booking> bookings = bookingService.getBookingByMotorhomeID(motorhome.getID());
-            for (Booking booking : bookings) {
-                if(bookingService.isBookingContainingDate(booking,date, bufferDays)) {
-                    available = false;
-                }
-            }
+        double buffer = systemVariableSer.get("motorhome availability buffer");
+        long count =  motorhome.isEmpty() ? 1 : motorhome.orElseThrow().getBookings()
+                                .stream().filter(booking ->
+                                booking.isContainingDate(date, buffer))
+                                .count();
+        return count == 0;
+    }
 
-            if(available) {
-                availableMotorhomes.add(motorhome);
-            }
-
-        }
-
-        return availableMotorhomes;
-    }*/
-
-    //Get all available motorhomes during given a period
-    /*public List<Motorhome> getAllAvailableMotorhomesDuring(LocalDate start, LocalDate end) {
-        List<Motorhome> availableMotorhomes = new ArrayList<>();
-        List<Motorhome> allMotorhomes = getAllMotorhomes();
-        for(Motorhome motorhome : allMotorhomes) {
-            if(isAvailableDuring(motorhome, start, end)) {
-                availableMotorhomes.add(motorhome);
-            }
-        }
-        return availableMotorhomes;
-    }*/
-
-    // Checks if the motorhome is available during a given period
-    /*public boolean isAvailableDuring(Motorhome motorhome, LocalDate startDate, LocalDate endDate) {
-        // Gets all dates in between two dates in a list
+    // Check availability during given time frame
+    public boolean isAvailable(Long id, LocalDate startDate, LocalDate endDate) {
         List<LocalDate> dates =  startDate.datesUntil(endDate).collect(Collectors.toList());
-        boolean available = true;
-        for(LocalDate date : dates) {
-            if(!(isAvailableOn(motorhome, date))) {
-                available = false;
-            }
-        }
-
-        return available;
-    }*/
-
-    // Add to check - sets the motorhome to be checked
-    /*public boolean addToCheck(long motorhomeID) {
-        Motorhome motorhome = motorhomeRepository.findById(motorhomeID).orElse(null);
-        if(motorhome == null || motorhome.getMotorhomeToClean() != null) {
-            return false;
-        }
-
-        MotorhomeToCheck toCheck = MotorhomeToCheck.builder()
-                .motorhome(motorhome)
-                .build();
-        motorhome.setMotorhomeToCheck(toCheck);
-        motorhomeRepository.save(motorhome);
-
-        return true;
+        long count = dates.stream().filter(date -> isAvailable(id, date)).count();
+        return count == 0;
     }
 
-    // Add to clean - sets the motorhome to be clean and unsets it to be checked
-    public boolean addToClean(long motorhomeID) {
-        Motorhome motorhome = motorhomeRepository.findById(motorhomeID).orElse(null);
-        if(motorhome == null || motorhome.getMotorhomeToCheck() == null) {
-            return false;
-        }
-
-        MotorhomeToClean toClean = MotorhomeToClean.builder()
-                .motorhome(motorhome)
-                .build();
-        motorhome.setMotorhomeToCheck(null);
-        motorhome.setMotorhomeToClean(toClean);
-        motorhomeRepository.save(motorhome);
-
-        return true;
-    }*/
-
-    // Create a motorhome
-    public Motorhome createMotorhome(double basePrice, String brand, int capacity, int mileage, String model, String regNum) {
-        Motorhome newMotorhome = Motorhome.builder()
-                .basePrice(basePrice)
-                .brand(brand)
-                .capacity(capacity)
-                .mileage(mileage)
-                .model(model)
-                .regNumber(regNum)
-                .build();
-        motorhomeRepository.save(newMotorhome);
-        return newMotorhome;
+    // Get available motorhomes on a given date
+    public List<Motorhome> getAllAvailable(LocalDate date) {
+        List<Motorhome> motorhomes = getAll();
+        return motorhomes.stream().filter(motorhome ->
+                        isAvailable(motorhome.getID(), date))
+                .collect(Collectors.toList());
     }
 
-    // Get status
-    public Status getStatus(Long id) {
-        Motorhome motorhome = motorhomeRepository.findById(id).orElse(null);
-        return motorhome == null ? null : motorhome.getStatus();
+    // Get available motorhomes during given time frame
+    public List<Motorhome> getAllAvailable(LocalDate startDate, LocalDate endDate) {
+        List<Motorhome> motorhomes = getAll();
+        return motorhomes.stream().filter(motorhome ->
+                        isAvailable(motorhome.getID(), startDate, endDate))
+                .collect(Collectors.toList());
+    }
+
+    // Update/change status
+    public Optional<Motorhome> updateStatus(Long motorhomeID, Long statusID) {
+        Optional<Status> status = statusSer.get(statusID);
+        Optional<Motorhome> motorhome = get(motorhomeID);
+
+        if(status.isEmpty() || motorhome.isEmpty()) return Optional.empty();
+
+        motorhome.get().setStatus(status.get());
+
+        return motorhome;
     }
 
 }

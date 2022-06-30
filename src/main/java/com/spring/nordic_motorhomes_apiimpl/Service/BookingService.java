@@ -2,456 +2,200 @@ package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.*;
 import com.spring.nordic_motorhomes_apiimpl.Repository.BookingRepository;
-import com.spring.nordic_motorhomes_apiimpl.Repository.CancelledBookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
-// Adam Simona
 @Service
 public class BookingService {
 
-    private final BookingRepository bookingRepository;
-    private final MotorhomeService motorhomeService;
-    private final EmployeeService employeeService;
-    private final ExtraService extraService;
-    private final CustomerService customerService;
-    private final SeasonService seasonService;
-    private final SystemVariableService systemVariableService;
-    private final CancelledBookingRepository cancelledBookingRepository;
-    private final CancellationFeeService cancellationFeeService;
+    // Dependencies
+    private final BookingRepository bookingRepo;
+    private final StatusService statusSer;
+    private final MotorhomeService motorhomeSer;
+    private final CustomerService customerSer;
+    private final EmployeeService employeeSer;
+    private final ExtraService extraSer;
+    private final SeasonService seasonSer;
+    private final SystemVariableService variableSer;
 
     @Autowired
-    public BookingService (BookingRepository bookingRepository,
-                           MotorhomeService motorhomeService,
-                           EmployeeService employeeService,
-                           ExtraService extraService,
-                           CustomerService customerService,
-                           SeasonService seasonService,
-                           SystemVariableService systemVariableService,
-                           CancelledBookingRepository cancelledBookingRepository,
-                           CancellationFeeService cancellationFeeService) {
-        this.bookingRepository = bookingRepository;
-        this.motorhomeService = motorhomeService;
-        this.employeeService = employeeService;
-        this.extraService = extraService;
-        this.customerService = customerService;
-        this.seasonService = seasonService;
-        this.systemVariableService = systemVariableService;
-        this.cancelledBookingRepository = cancelledBookingRepository;
-        this.cancellationFeeService = cancellationFeeService;
+    public BookingService(BookingRepository bookingRepo,
+                          StatusService statusSer,
+                          MotorhomeService motorhomeService,
+                          CustomerService customerSer,
+                          EmployeeService employeeSer,
+                          ExtraService extraSer,
+                          SeasonService seasonSer,
+                          SystemVariableService variableSer) {
+        this.bookingRepo = bookingRepo;
+        this.statusSer = statusSer;
+        this.motorhomeSer = motorhomeService;
+        this.customerSer = customerSer;
+        this.employeeSer = employeeSer;
+        this.extraSer = extraSer;
+        this.seasonSer = seasonSer;
+        this.variableSer = variableSer;
     }
 
-    // Create booking - creates and saves booking
-    /*public Booking createBooking( Set<Extra> extras, Customer customer, Motorhome motorhome, Employee employee, Date start, Date end, String pickUp, Time pickUpTime, String dropOff, double total) {
+    // have multiple overloads
+    // Save booking
+    public Optional<Booking> save(Booking booking, Long motorhomeID, Long customerID, Long employeeID, List<Long> extraIDs, Long statusID) {
 
-        // Creating new booking
-        Booking newBooking = Booking.builder()
-                .status(1)
-                .extras(extras)
-                .customer(customer)
-                .motorhome(motorhome)
-                .employee(employee)
-                .startDate(start)
-                .endDate(end)
-                .pickUpLocation(pickUp)
-                .pickUpTime(pickUpTime)
-                .dropOffLocation(dropOff)
-                .totalPrice(total)
-                .build();
+        Optional<Motorhome> motorhome = motorhomeSer.get(motorhomeID);
+        Optional<Customer> customer = customerSer.get(customerID);
+        Optional<Employee> employee = employeeSer.get(employeeID);
+        List<Extra> extras = extraIDs.stream().map(extraSer::get)
+                                            .filter(Optional::isPresent)
+                                            .map(Optional::get)
+                                            .collect(Collectors.toList());
+        Optional<Status> status = statusSer.get(statusID);
 
-        bookingRepository.save(newBooking);
-        return newBooking;
-    }*/
+        if(motorhome.isEmpty()
+          || customer.isEmpty()
+          || employee.isEmpty()
+          || status.isEmpty())
+        return Optional.empty();
 
-    // Save booking - saves booking (overload)
-    public void saveBooking(Booking booking) {
-        bookingRepository.save(booking);
+        booking.setMotorhome(motorhome.get());
+        booking.setCustomer(customer.get());
+        booking.setEmployee(employee.get());
+        booking.setExtras(extras);
+        booking.setStatus(status.get());
+        booking.setTotalPrice(calcTotal(booking));
+
+        return !(motorhomeSer.isAvailable(motorhomeID, booking.getStartDate().toLocalDate(), booking.getEndDate().toLocalDate()))
+                ? Optional.empty()
+                : Optional.of(bookingRepo.save(booking));
     }
-    // Cancel booking
-    public Booking cancelBooking(long bookingID) {
 
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        CancellationFee fee = cancellationFeeService.selectFee(booking);
+    // Get booking
+    public Optional<Booking> get(Long id) {
+        return bookingRepo.findById(id);
+    }
 
-        // Error handling
-        if(booking == null || /*booking.getPastBooking() != null ||*/ fee == null) {
-            return null;
-        }
+    // Get bookings
+    public List<Booking> getAll() {
+        return bookingRepo.findAll();
+    }
 
-        // Creation of the cancelled booking
-        CancelledBooking cancelledBooking = CancelledBooking.builder()
-                .booking(booking)
-                .fee(fee)
-                .build();
+    // Get bookings - sorted
+    public List<Booking> getAll(Sort sort) {
+        return bookingRepo.findAll(sort);
+    }
 
-        // Updating and saving of the booking
-        booking.setCancelledBooking(cancelledBooking);
-        /*booking.setFutureBooking(null);
-        booking.setActiveBooking(null);*/
-        bookingRepository.save(booking);
+    // Get bookings by status
+    public List<Booking> getByStatus(String statusKeyword) {
+        return bookingRepo
+                .findAll()
+                .stream().filter(booking -> booking
+                        .getStatus()
+                            .getKeyword()
+                                .equalsIgnoreCase(statusKeyword))
+                .collect(Collectors.toList());
+    }
 
-        return booking;
+    // Get bookings by status - sorted
+    public List<Booking> getByStatus(String statusKeyword, Sort sort) {
+        return bookingRepo
+                .findAll(sort)
+                .stream().filter(booking -> booking
+                        .getStatus()
+                        .getKeyword()
+                        .equalsIgnoreCase(statusKeyword))
+                .collect(Collectors.toList());
     }
 
     // Update booking
-    public Booking updateBooking(Long ID, Booking booking) {
-        booking.setID(ID);
-        return bookingRepository.existsById(ID) ? bookingRepository.save(booking) : null;
+    public Optional<Booking> update(Long id, Booking booking) {
+        booking.setID(id);
+        return !(bookingRepo.existsById(id)) ? Optional.empty() : Optional.of(bookingRepo.save(booking));
     }
 
     // Delete booking
-    public void deleteBooking(Long ID) {
-        bookingRepository.deleteById(ID);
+    public void delete(Long id) {
+        bookingRepo.deleteById(id);
     }
 
-    // Potentionally redundant
-    // Add booking - creates customer if they don't exist and creates booking (return true/false depending on if everything's alright)
-    /*public Booking addBooking(int customerCpr, String customerFirst, String customerLast, int customerPhone, Date start, Date end, long motorhomeID, Set<Integer> extraIDs, String pickUp, String dropOff, Time pickUpTime, long empID) {
+    // Update/Change status of booking
+    public Optional<Booking> updateStatus(Long bookingID, Long statusID) {
+        Optional<Status> status = statusSer.get(statusID);
+        Optional<Booking> booking = get(bookingID);
 
-        // Set up
-        Motorhome motorhome = motorhomeService.getMotorhomeById(motorhomeID);
-        Employee employee = employeeService.getEmpById(empID);
-        Set<Extra> extras = extraService.getExtrasByIds(extraIDs);
+        if(status.isEmpty() || booking.isEmpty()) return Optional.empty();
 
-
-        // Error handling
-        if (motorhome == null || employee == null || extras == null || !(motorhomeService.isAvailableDuring(motorhome, start.toLocalDate(), end.toLocalDate()))) { return null; }
-
-        // Calculating the total price of the booking
-        double total = getTotalPrice(motorhome, start.toLocalDate(), end.toLocalDate(), extras);
-
-        // Creating Customer and Booking
-        Customer c = customerService.getOrCreateCustomer(customerCpr,customerFirst,customerLast,customerPhone);
-        Booking booking = createBooking(extras, c, motorhome, employee, start, end, pickUp, pickUpTime, dropOff, total);
+        booking.get().setStatus(status.get());
 
         return booking;
-    }*/
-
-
-    // Get all the bookings
-    public List<Booking> getAllBookings() {
-        return bookingRepository.findAll();
     }
 
-    // Get all the bookings - sorted
-    public List<Booking> getAllBookings(Sort sort) {
-        return bookingRepository.findAll(sort);
+    // Cancel a booking
+    public Optional<Booking> cancel(Long bookingID, Long cancelStatusID) {
+
+        Optional<Booking> booking = updateStatus(bookingID, cancelStatusID);
+        if (booking.isEmpty()) return Optional.empty();
+
+        Cancellation cancell = Cancellation.builder()
+                .booking(booking.get())
+                .build();
+        // Not sure if these two steps are required
+        booking.get().setCancellation(cancell);
+        return Optional.of(bookingRepo.save(booking.get()));
     }
 
-    // Get booking by name
-    public List<Booking> getBookingByName(String name) {
+    // Total price
+    private double calcTotal(Booking booking) {
+        LocalDate start = booking.getStartDate().toLocalDate();
+        LocalDate end = booking.getEndDate().toLocalDate();
 
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allBookings = getAllBookings();
-
-        for(Booking booking : allBookings)  {
-            Customer customer = booking.getCustomer();
-            if(customer.getFirstName().equals(name) || customer.getLastName().equals(name)) {
-                bookings.add(booking);
-            }
-        }
-
-        return bookings;
-    }
-
-    // Get booking by ID
-    public Booking getBookingById(long id) {
-        return bookingRepository.findById(id).orElse(null);
-    }
-
-    // Search bookings based on any attribute
-    public List<Booking> searchBookings(String searchString) {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allBookings = getAllBookings();
-
-        for(Booking booking : allBookings) {
-            String bookingString = booking.toString();
-            if(bookingString.contains(searchString)) {
-                bookings.add(booking);
-            }
-        }
-
-        return bookings;
-    }
-
-
-    // Get active bookings
-    public List<Booking> getActiveBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allBookings = getAllBookings();
-        for(Booking booking : allBookings) {
-            /*if(booking.getActiveBooking() != null) {
-                bookings.add(booking);
-            }*/
-        }
-        return bookings;
-    }
-
-    // Get sorted active bookings - it's easier to use sql for sorting
-    public List<Booking> getSortedActiveBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allSortedBookings = getAllBookings(Sort.by(Sort.Direction.ASC, "endDate"));
-        List<Booking> activeBookings = getActiveBookings();
-
-        for(Booking booking : allSortedBookings) {
-            if(activeBookings.contains(booking)) {
-                bookings.add(booking);
-            }
-        }
-
-        return bookings;
-
-    }
-
-    // Get today's active bookings - active bookings that have end today (hence will be dropped off)
-    public List<Booking> getTodaysActiveBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> activeBookings = getActiveBookings();
-        LocalDate currentDate = LocalDate.now();
-
-        for (Booking booking : activeBookings) {
-            LocalDate bookingEndDate = booking.getEndDate().toLocalDate();
-            if(bookingEndDate.equals(currentDate)) {
-                bookings.add(booking);
-            }
-        }
-
-        return bookings;
-    }
-
-    // Get future bookings
-    public List<Booking> getFutureBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allBookings = getAllBookings();
-        for(Booking booking : allBookings) {
-            /*if(booking.getFutureBooking() != null) {
-                bookings.add(booking);
-            }*/
-        }
-        return bookings;
-    }
-
-    // Get sorted future bookings
-    public List<Booking> getSortedFutureBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allSortedBookings = getAllBookings(Sort.by(Sort.Direction.ASC, "startDate"));
-        List<Booking> futureBookings = getFutureBookings();
-
-        for(Booking booking : allSortedBookings) {
-            if(futureBookings.contains(booking)) {
-                bookings.add(booking);
-            }
-        }
-        return bookings;
-    }
-
-    // Get today's active bookings - active bookings that have end today (hence will be dropped off)
-    public List<Booking> getTodaysFutureBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> futureBookings = getFutureBookings();
-        LocalDate currentDate = LocalDate.now();
-
-        for (Booking booking : futureBookings) {
-            LocalDate bookingStartDate = booking.getStartDate().toLocalDate();
-            if(bookingStartDate.equals(currentDate)) {
-                bookings.add(booking);
-            }
-        }
-
-        return bookings;
-    }
-
-    // Get past bookings
-    public List<Booking> getPastBookings() {
-        List<Booking> bookings = new ArrayList<>();
-        List<Booking> allBookings = getAllBookings();
-        for(Booking booking : allBookings) {
-            /*if(booking.getPastBooking() != null) {
-                bookings.add(booking);
-            }*/
-        }
-        return bookings;
-    }
-
-
-    // Checks if booking is containing a date
-    public boolean isBookingContainingDate(Booking booking, LocalDate date) {
-        List<Booking> bookingsContainingDate = getBookingByDate(date);
-        if(bookingsContainingDate.contains(booking)) {
-            return true;
-        }
-        return false;
-    }
-
-    // Checks if booking is containing a date (including a buffer)
-    public boolean isBookingContainingDate(Booking booking, LocalDate date, int bufferDays) {
-        List<Booking> bookingsContainingDate = getBookingByDate(date, bufferDays);
-        if(bookingsContainingDate.contains(booking)) {
-            return true;
-        }
-        return false;
-    }
-
-
-    // Get Booking by date - returns a list of bookings that contain the given date
-    public List<Booking> getBookingByDate(LocalDate date) {
-
-        List<Booking> bookings = new ArrayList<Booking>();
-        List<Booking> allBookings = getAllBookings();
-
-        for (Booking booking : allBookings) {
-            LocalDate startDate = booking.getStartDate().toLocalDate();
-            LocalDate endDate = booking.getEndDate().toLocalDate();
-
-            // Condition check if the date is between start and end date of the booking
-            if ((startDate.isBefore(date) || startDate.isEqual(date)) && (endDate.isAfter(date) || endDate.isEqual(date))) {
-                bookings.add(booking);
-            }
-
-        }
-
-
-        return bookings;
-    }
-
-    // Get Booking by date - returns a list of bookings that contain the given date (adds a buffer on the end date of the booking)
-    public List<Booking> getBookingByDate(LocalDate date, int bufferDays) {
-
-        List<Booking> bookings = new ArrayList<Booking>();
-        List<Booking> allBookings = getAllBookings();
-
-        for (Booking booking : allBookings) {
-            LocalDate startDate = booking.getStartDate().toLocalDate();
-            LocalDate endDate = booking.getEndDate().toLocalDate().plus(bufferDays, ChronoUnit.DAYS);
-
-            // Condition check if the date is between start and end date of the booking
-            if ((startDate.isBefore(date) || startDate.isEqual(date)) && (endDate.isAfter(date) || endDate.isEqual(date))) {
-                bookings.add(booking);
-            }
-
-        }
-
-
-        return bookings;
-    }
-
-    // Get Booking by start date
-    public List<Booking> getBookingByStartDate(Date date) {
-        List<Booking> bookings = bookingRepository.findByStartDate(date);
-        return bookings;
-    }
-
-    // Booking by end date
-    public List<Booking> getBookingByEndDate(Date date) {
-        List<Booking> bookings = bookingRepository.findByEndDate(date);
-        return bookings;
-    }
-
-    // Get previous bookings - returns bookings that ended before specified date
-    public List<Booking> getPreviousBookings(LocalDate date) {
-        List<Booking> previousBookings = new ArrayList<Booking>();
-        List<Booking> bookings = getAllBookings();
-        for(Booking booking : bookings) {
-            if(booking.getEndDate().toLocalDate().isBefore(date)) {
-                previousBookings.add(booking);
-            }
-        }
-
-        return previousBookings;
-    }
-
-
-    // Get booking by motorhome id
-    public List<Booking> getBookingByMotorhomeID(long motorhomeID) {
-        return bookingRepository.findByMotorhomeID(motorhomeID);
-    }
-
-
-    // Get total price - calculates and returns total price of the booking
-    public double getTotalPrice(Motorhome motorhome, LocalDate start, LocalDate end, Set<Extra> extras) {
         int days = (int) ChronoUnit.DAYS.between(start, end);
-        double seasonPercentage = seasonService.getSeason(start).getPercentage() + 1;
-        return ((motorhome.getBasePrice() * days) + extraService.getExtrasTotalPrice(extras)) * seasonPercentage;
+        // percentage values are represented by values 0 - 100% -> 0.0 - 1.0
+        double seasonPer = seasonSer.get(start).map(Season::getPercentage).orElse(-1.0) + 1;
+
+        return (
+                    (booking.getMotorhome().getBasePrice() * days)
+                    + extraSer.getTotal(booking.getExtras())
+                ) * seasonPer;
     }
 
-    // Picked up - adds given booking to active bookings
-    public Booking pickedUp(long bookingID) {
-        return addToActive(bookingID);
+    // End booking (drop off)
+    public Optional<Booking> end(Long bookingID, Long bookingStatusID, Long motorhomeStatusID) {
+        long motorhome = get(bookingID)
+                .map(Booking::getMotorhome)
+                .map(Motorhome::getID)
+                .orElse(-1L);
+        long bookStatus = statusSer.get(bookingStatusID)
+                .map(Status::getID)
+                .orElse(-1L);
+        long motorStatus = statusSer.get(motorhomeStatusID)
+                .map(Status::getID)
+                .orElse(-1L);
+
+        Optional<Motorhome> motor = motorhomeSer.updateStatus(motorhome, motorStatus);
+        Optional<Booking> book = updateStatus(bookingID, bookStatus);
+
+        return motor.isEmpty() ? Optional.empty() : book;
 
     }
 
-    // Dropped off - moves motorhome attached to given booking to motorhomes to be checked
-    /*public Booking droppedOff(long bookingID) {
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        if(booking == null) {
-            return null;
-        }
-        motorhomeService.addToCheck(booking.getMotorhome().getID());
-        return booking;
-    }*/
+    // End booking (drop off) - with additional kilometers
+    public Optional<Booking> end(Long bookingID, Long bookingStatusID, Long motorhomeStatusID, int additKilo) {
+        Optional<Booking> booking = end(bookingID, bookingStatusID, motorhomeStatusID);
 
-    // Dropped off - moves motorhome attached to given booking to motorhomes to be checked (adds additional kilometers fee to the total of the booking)
-    /*public Booking droppedOff(long bookingID, int additionalKilometers) {
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        if(booking == null) {
-            return null;
-        }
-        motorhomeService.addToCheck(booking.getMotorhome().getID());
-
-        // calculate the additional fee for drop off
-        double total = booking.getTotalPrice();
-        total += additionalKilometers * systemVariableService.getAdditionalKilometerFee();
-
-        booking.setTotalPrice(total);
-        return booking;
-    }*/
-
-    // Add to active - moves booking with given id to active bookings
-    public Booking addToActive(long bookingID) {
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        if(booking == null) {
-            return null;
-        }
-        /*ActiveBooking activeBooking = ActiveBooking.builder()
-                .booking(booking)
-                .build();
-        booking.setPastBooking(null);
-        booking.setFutureBooking(null);
-        booking.setActiveBooking(activeBooking);*/
-        bookingRepository.save(booking);
+        double fee = additKilo * variableSer.get("additional kilometer fee");
+        booking.ifPresent(b -> b.setTotalPrice(b.getTotalPrice() + fee));
 
         return booking;
+
     }
 
-    // Add to past - moves booking with given id to past bookings
-    /*public Booking addToPast(long bookingID) {
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        if(booking == null) {
-            return null;
-        }
-        PastBooking pastBooking = PastBooking.builder()
-                .booking(booking)
-                .build();
-        booking.setPastBooking(pastBooking);
-        booking.setFutureBooking(null);
-        booking.setActiveBooking(null);
-        bookingRepository.save(booking);
-
-        return booking;
-    }*/
 
 
-    public Status getStatus(long bookingID) {
-        Booking booking = bookingRepository.findById(bookingID).orElse(null);
-        return booking == null ? null : booking.getStatus();
-    }
+
 }

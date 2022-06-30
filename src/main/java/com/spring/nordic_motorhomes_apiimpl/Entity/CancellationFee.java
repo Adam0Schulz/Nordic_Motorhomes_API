@@ -6,7 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.Set;
 
-// Wanesa
+
 @Entity
 @Getter
 @Setter
@@ -26,11 +26,11 @@ public class CancellationFee {
     @GeneratedValue(strategy= GenerationType.SEQUENCE,
             generator = "cancellationFees_sequence"
     )
-    private int ID;
+    private long ID;
 
     @JsonIgnore
     @OneToMany(mappedBy = "fee")
-    private Set<CancelledBooking> cancelledBookings;
+    private Set<Cancellation> cancelledBookings;
 
     // Other Attributes
     private String name;

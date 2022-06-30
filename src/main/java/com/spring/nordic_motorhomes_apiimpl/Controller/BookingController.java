@@ -31,7 +31,8 @@ public class BookingController {
     // GET http://localhost:7070/api/adam123/bookings/12554
     @GetMapping( "/{id}")
     public Booking get(@PathVariable(name = "key") String key, @PathVariable(name = "id") Long id) {
-        return bookingService.getBookingById(id);
+        //return bookingService.get(id);
+        return null;
     }
 
     // GET http://localhost:7070/api/adam123/bookings/12254/status
@@ -43,7 +44,7 @@ public class BookingController {
     // GET http://localhost:7070/api/adam123/bookings?status=active
     @GetMapping("/?status={status}")
     public List<Booking> getAll(@PathVariable(name = "status") String status,@PathVariable(name = "key") String key) {
-        // get all bookings with given status
+        //return bookingService.getByStatus(status)
         return null;
     }
 
@@ -51,14 +52,14 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public void create(@PathVariable(name = "key") String key, @RequestBody Booking booking) {
-        bookingService.saveBooking(booking);
+        //bookingService.save(booking);
     }
 
     // PUT http://localhost:7070/api/adam123/bookings/12554
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@PathVariable(name = "key") String key, @RequestBody Booking booking, @PathVariable(name = "id") Long id) {
-        bookingService.updateBooking(id, booking);
+        //bookingService.update(id, booking);
     }
 
     // PUT http://localhost:7070/api/adam123/bookings/12254/status
@@ -72,7 +73,7 @@ public class BookingController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void deleteBooking(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        bookingService.deleteBooking(id);
+        //bookingService.delete(id);
     }
 
 

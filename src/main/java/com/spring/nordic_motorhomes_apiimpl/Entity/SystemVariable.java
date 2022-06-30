@@ -25,7 +25,7 @@ public class SystemVariable {
     @GeneratedValue(strategy= GenerationType.SEQUENCE,
             generator = "systemVariable_sequence"
     )
-    private int ID;
+    private long ID;
     private String name;
     private double value;
 }
