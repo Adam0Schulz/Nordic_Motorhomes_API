@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(name = "customers")
-public class Customer {
+public class Customer{
     @Id
     @SequenceGenerator(name = "customer_sequence",
             sequenceName = "customer_sequence",
