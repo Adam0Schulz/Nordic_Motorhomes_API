@@ -96,7 +96,4 @@ public class Booking {
         return isContainingDate(date, buffer);
     }
 
-    public String toString() {
-        return getID() + getCustomer().toString() + getMotorhome().toString() + getTotalPrice();
-    }
 }

@@ -24,35 +24,34 @@ public class CustomerController {
     // GET http://localhost:7070/api/adam123/customers
     @GetMapping
     public List<Customer> getAll(@PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return customerService.getAll();
     }
 
     // GET http://localhost:7070/api/adam123/customers/5
     @GetMapping("/{id}")
     public Customer get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return customerService.get(id).orElse(null);
+
     }
 
     // POST http://localhost:7070/api/adam123/customers
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping
     public void create(@RequestBody Customer customer, @PathVariable(name = "key") String key) {
-        // create
+        customerService.save(customer);
     }
 
     //PUT http://localhost:7070/api/adam123/customers/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@RequestBody Customer customer, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //update
+        customerService.update(id, customer);
     }
 
     // DELETE http://localhost:7070/api/adam123/customers/12554
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        // delete
+        customerService.delete(id);
     }
 }

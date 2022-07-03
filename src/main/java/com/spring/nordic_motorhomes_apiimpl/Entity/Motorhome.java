@@ -49,4 +49,8 @@ public class Motorhome {
     private String vehicleCategory;
     private String image;
 
+    public String toString() {
+        return this.getID() + "-" + this.getBrand() + "-" + this.getModel() + "-" + this.getRegNumber();
+    }
+
 }

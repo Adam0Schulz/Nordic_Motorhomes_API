@@ -27,36 +27,34 @@ public class StatusController {
     // GET http://localhost:7070/api/adam123/statuses
     @GetMapping
     public List<Status> getAll(@PathVariable(name = "key") String key) {
-        // return all statuses
-        return null;
+        return statusService.getAll();
     }
 
     // GET http://localhost:7070/api/adam123/statuses/5
     @GetMapping("/{id}")
-    public List<Status> get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        // return status
-        return null;
+    public Status get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
+        return statusService.get(id).orElse(null);
     }
 
     // POST http://localhost:7070/api/adam123/statuses
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping
     public void create(@RequestBody Status status, @PathVariable(name = "key") String key) {
-        // create a status
+        statusService.save(status);
     }
 
     //PUT http://localhost:7070/api/adam123/statuses/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
-    public void updateStatus(@RequestBody Status status, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //update a status
+    public void update(@RequestBody Status status, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
+        statusService.update(id, status);
     }
 
     // DELETE http://localhost:7070/api/adam123/statuses/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        // delete a status
+        statusService.delete(id);
     }
 
 

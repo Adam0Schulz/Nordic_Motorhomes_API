@@ -44,4 +44,8 @@ public class Employee {
     private String email;
     private String password;
 
+    public String toString() {
+        return this.getID() + "-" + this.getCPR() + "-" + this.getPhoneNumber() + "-" + this.getFirstName() + "-" + this.getLastName();
+    }
+
 }

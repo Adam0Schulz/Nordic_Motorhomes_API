@@ -1,12 +1,14 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Customer;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Employee;
 import com.spring.nordic_motorhomes_apiimpl.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CustomerService {
@@ -32,6 +34,15 @@ public class CustomerService {
     // Get all customers
     public List<Customer> getAll() {
         return customerRepo.findAll();
+    }
+
+    // Get all Customers that match search keyword
+    public List<Customer> getAll(String keyword) {
+        return customerRepo
+                .findAll()
+                .stream().filter(c -> c
+                        .toString().contains(keyword))
+                .collect(Collectors.toList());
     }
 
     // Update a customer

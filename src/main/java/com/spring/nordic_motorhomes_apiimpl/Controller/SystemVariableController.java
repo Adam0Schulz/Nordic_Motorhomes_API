@@ -24,35 +24,33 @@ public class SystemVariableController {
     // GET http://localhost:7070/api/adam123/variables
     @GetMapping
     public List<SystemVariable> getAll(@PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return systemVariableService.getAll();
     }
 
     // GET http://localhost:7070/api/adam123/variables/5
     @GetMapping("/{id}")
     public SystemVariable get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return systemVariableService.get(id).orElse(null);
     }
 
     // POST http://localhost:7070/api/adam123/variables
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping
     public void create(@RequestBody SystemVariable variable, @PathVariable(name = "key") String key) {
-        // create
+        systemVariableService.save(variable);
     }
 
     //PUT http://localhost:7070/api/adam123/variables/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@RequestBody SystemVariable variable, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //update
+        systemVariableService.update(id, variable);
     }
 
     // DELETE http://localhost:7070/api/adam123/variables/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        // delete
+        systemVariableService.delete(id);
     }
 }

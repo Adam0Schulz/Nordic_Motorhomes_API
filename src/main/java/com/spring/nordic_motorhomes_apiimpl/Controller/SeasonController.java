@@ -25,35 +25,33 @@ public class SeasonController {
     // GET http://localhost:7070/api/adam123/seasons
     @GetMapping
     public List<Season> getAll(@PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return seasonService.getAll();
     }
 
     // GET http://localhost:7070/api/adam123/seasons/5
     @GetMapping("/{id}")
     public Season get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return seasonService.get(id).orElse(null);
     }
 
     // POST http://localhost:7070/api/adam123/seasons
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping
     public void create(@RequestBody Season season, @PathVariable(name = "key") String key) {
-        // create
+        seasonService.save(season);
     }
 
     //PUT http://localhost:7070/api/adam123/seasons/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@RequestBody Season season, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //update
+        seasonService.update(id, season);
     }
 
     // DELETE http://localhost:7070/api/adam123/seasons/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        // delete
+        seasonService.delete(id);
     }
 }

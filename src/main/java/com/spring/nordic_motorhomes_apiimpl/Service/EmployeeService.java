@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
@@ -30,7 +31,7 @@ public class EmployeeService {
         return employeeRepo.save(employee);
     }
 
-    // Get a employee
+    // Get an employee
     public Optional<Employee> get(Long id) {
         return employeeRepo.findById(id);
     }
@@ -38,6 +39,15 @@ public class EmployeeService {
     // Get all employees
     public List<Employee> getAll() {
         return employeeRepo.findAll();
+    }
+
+    // Get all employees that match search keyword
+    public List<Employee> getAll(String keyword) {
+        return employeeRepo
+                .findAll()
+                .stream().filter(e -> e
+                        .toString().contains(keyword))
+                .collect(Collectors.toList());
     }
 
     // Update a employee

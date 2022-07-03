@@ -1,6 +1,7 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Customer;
+import com.spring.nordic_motorhomes_apiimpl.Entity.Employee;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Status;
 import com.spring.nordic_motorhomes_apiimpl.Repository.StatusRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class StatusService {
@@ -34,6 +36,15 @@ public class StatusService {
     // Get all statuses
     public List<Status> getAll() {
         return statusRepo.findAll();
+    }
+
+    // Get all statuses that match search keyword
+    public List<Status> getAll(String keyword) {
+        return statusRepo
+                .findAll()
+                .stream().filter(s -> s
+                        .toString().contains(keyword))
+                .collect(Collectors.toList());
     }
 
     // Update status

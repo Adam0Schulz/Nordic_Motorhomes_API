@@ -36,4 +36,8 @@ public class Status {
     private String keyword;
     private String description;
 
+    public String toString() {
+        return this.getID() + "-" + this.getKeyword();
+    }
+
 }

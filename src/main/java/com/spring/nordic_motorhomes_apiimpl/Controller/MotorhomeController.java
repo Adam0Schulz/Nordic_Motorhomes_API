@@ -22,51 +22,37 @@ public class MotorhomeController {
     }
 
     //Mapping / Routes / Endpoints
-    // GET http://localhost:7070/api/adam123/motorhomes/12254/status
-    @GetMapping("/{id}/status")
-    public Status getStatus(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        return motorhomeService.getStatus(id);
-    }
 
     // GET http://localhost:7070/api/adam123/motorhomes
     @GetMapping
     public List<Motorhome> getAll(@PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return motorhomeService.getAll();
     }
 
     // GET http://localhost:7070/api/adam123/motorhomes/5
     @GetMapping("/{id}")
     public Motorhome get(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        // return
-        return null;
+        return motorhomeService.get(id).orElse(null);
     }
 
     // POST http://localhost:7070/api/adam123/motorhomes
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PostMapping
     public void create(@RequestBody Motorhome motorhome, @PathVariable(name = "key") String key) {
-        // create
+        motorhomeService.save(motorhome);
     }
 
     //PUT http://localhost:7070/api/adam123/motorhomes/5
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("/{id}")
     public void update(@RequestBody Motorhome motorhome, @PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //update
-    }
-
-    // PUT http://localhost:7070/api/adam123/motorhomes/12254/status
-    @GetMapping("/{id}/status")
-    public Status updateStatus(@PathVariable(name = "id") Long id, @PathVariable(name = "key") String key) {
-        //return motorhomeService.changeStatus(id);
-        return null;
+        motorhomeService.update(id, motorhome);
     }
 
     // DELETE http://localhost:7070/api/adam123/motorhomes/12554
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable(name = "key") String key,@PathVariable(name = "id") Long id) {
-        // delete
+        motorhomeService.delete(id);
     }
 }

@@ -38,7 +38,7 @@ public class SeasonService {
     public Optional<Season> get(LocalDate bookingStartDate) {
 
         // Set up
-        Stream <Season> seasons = getAllSeasons().stream();
+        Stream <Season> seasons = getAll().stream();
         int bookStartM = bookingStartDate.getMonthValue();
 
         List<Season> season = seasons.filter(season1 ->
@@ -51,7 +51,7 @@ public class SeasonService {
     }
 
     // Get all seasons
-    public List<Season> getAllSeasons() { return seasonRepo.findAll(); }
+    public List<Season> getAll() { return seasonRepo.findAll(); }
 
     // Update a season
     public Optional<Season> update(Long id, Season season) {

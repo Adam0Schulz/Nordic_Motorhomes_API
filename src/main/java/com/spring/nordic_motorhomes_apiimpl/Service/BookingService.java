@@ -75,6 +75,31 @@ public class BookingService {
                 : Optional.of(bookingRepo.save(booking));
     }
 
+    // Save booking
+    public Optional<Booking> save(Booking booking, Long motorhomeID, Long customerID, Long employeeID, Long statusID) {
+
+        Optional<Motorhome> motorhome = motorhomeSer.get(motorhomeID);
+        Optional<Customer> customer = customerSer.get(customerID);
+        Optional<Employee> employee = employeeSer.get(employeeID);
+        Optional<Status> status = statusSer.get(statusID);
+
+        if(motorhome.isEmpty()
+                || customer.isEmpty()
+                || employee.isEmpty()
+                || status.isEmpty())
+            return Optional.empty();
+
+        booking.setMotorhome(motorhome.get());
+        booking.setCustomer(customer.get());
+        booking.setEmployee(employee.get());
+        booking.setStatus(status.get());
+        booking.setTotalPrice(calcTotal(booking));
+
+        return !(motorhomeSer.isAvailable(motorhomeID, booking.getStartDate().toLocalDate(), booking.getEndDate().toLocalDate()))
+                ? Optional.empty()
+                : Optional.of(bookingRepo.save(booking));
+    }
+
     // Get booking
     public Optional<Booking> get(Long id) {
         return bookingRepo.findById(id);
@@ -91,24 +116,32 @@ public class BookingService {
     }
 
     // Get bookings by status
-    public List<Booking> getByStatus(String statusKeyword) {
+    public List<Booking> getByStatus(String keyword) {
         return bookingRepo
                 .findAll()
                 .stream().filter(booking -> booking
                         .getStatus()
-                            .getKeyword()
-                                .equalsIgnoreCase(statusKeyword))
+                        .toString().contains(keyword))
                 .collect(Collectors.toList());
     }
 
-    // Get bookings by status - sorted
-    public List<Booking> getByStatus(String statusKeyword, Sort sort) {
+    // Get bookings by motorhome
+    public List<Booking> getByMotorhome(String keyword) {
         return bookingRepo
-                .findAll(sort)
-                .stream().filter(booking -> booking
-                        .getStatus()
-                        .getKeyword()
-                        .equalsIgnoreCase(statusKeyword))
+                .findAll()
+                .stream().filter(b -> b
+                        .getMotorhome()
+                        .toString().contains(keyword))
+                .collect(Collectors.toList());
+    }
+
+    // Get bookings by employee
+    public List<Booking> getByEmployee(String keyword) {
+        return bookingRepo
+                .findAll()
+                .stream().filter(b -> b
+                        .getEmployee()
+                        .toString().contains(keyword))
                 .collect(Collectors.toList());
     }
 
