@@ -8,7 +8,7 @@ import java.util.Optional;
 
 // Wanesa
 @Repository
-public interface SystemVariableRepository extends JpaRepository<SystemVariable,Long> {
+public interface SystemVariableRepository extends GeneralRepository<SystemVariable> {
 
-    Optional<SystemVariable> findByName(String motorhome_availability_buffer);
+    Optional<SystemVariable> findByName(String name);
 }

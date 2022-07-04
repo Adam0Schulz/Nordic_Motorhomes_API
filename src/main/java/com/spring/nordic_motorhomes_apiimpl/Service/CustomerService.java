@@ -1,8 +1,6 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Customer;
-import com.spring.nordic_motorhomes_apiimpl.Entity.Employee;
-import com.spring.nordic_motorhomes_apiimpl.Repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,49 +8,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
-public class CustomerService {
 
-    // Dependencies
-    private final CustomerRepository customerRepo;
+import com.spring.nordic_motorhomes_apiimpl.Repository.GeneralRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomerService extends GeneralService<Customer> {
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepo) {
-        this.customerRepo = customerRepo;
+    public CustomerService(GeneralRepository<Customer> repo) {
+        super(repo);
     }
 
-    // Save a customer
-    public Customer save(Customer customer) {
-        return customerRepo.save(customer);
-    }
-
-    // Get a customer
-    public Optional<Customer> get(Long id) {
-        return customerRepo.findById(id);
-    }
-
-    // Get all customers
-    public List<Customer> getAll() {
-        return customerRepo.findAll();
-    }
-
-    // Get all Customers that match search keyword
-    public List<Customer> getAll(String keyword) {
-        return customerRepo
-                .findAll()
-                .stream().filter(c -> c
-                        .toString().contains(keyword))
-                .collect(Collectors.toList());
-    }
-
-    // Update a customer
-    public Optional<Customer> update(Long id, Customer customer) {
-        customer.setID(id);
-        return !(customerRepo.existsById(id))
-                ? Optional.empty()
-                : Optional.of(save(customer));
-    }
-
-    // Delete a customer
-    public void delete(Long id) { customerRepo.deleteById(id); }
 }

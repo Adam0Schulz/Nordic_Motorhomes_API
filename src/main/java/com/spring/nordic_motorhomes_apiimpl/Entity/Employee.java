@@ -16,7 +16,7 @@ import java.util.Set;
 @Getter
 @Builder
 @Table(name = "employees") // Naming the database table
-public class Employee {
+public class Employee extends GeneralEntity{
 
     // Attributes/Columns
     //  Primary key

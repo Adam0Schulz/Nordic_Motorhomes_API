@@ -18,7 +18,7 @@ import java.util.List;
 @Getter
 @Builder
 @Table(name = "bookings") // Naming the database table
-public class Booking {
+public class Booking extends GeneralEntity{
 
     // Attributes/Columns
     //  Primary key

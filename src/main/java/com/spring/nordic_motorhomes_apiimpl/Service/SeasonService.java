@@ -1,7 +1,7 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Season;
-import com.spring.nordic_motorhomes_apiimpl.Repository.SeasonRepository;
+import com.spring.nordic_motorhomes_apiimpl.Repository.GeneralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,26 +13,13 @@ import java.util.stream.Stream;
 
 // Adam
 @Service
-public class SeasonService {
-
-    // Dependencies
-    private final SeasonRepository seasonRepo;
+public class SeasonService extends GeneralService<Season>{
 
     @Autowired
-    public SeasonService(SeasonRepository seasonRepo) {
-        this.seasonRepo = seasonRepo;
+    public SeasonService(GeneralRepository<Season> repo) {
+        super(repo);
     }
 
-
-    // Save a season
-    public Season save(Season season) {
-        return seasonRepo.save(season);
-    }
-
-    // Get a season
-    public Optional<Season> get(Long id) {
-        return seasonRepo.findById(id);
-    }
 
     // Get season - returns a season on given date (start date of the booking)
     public Optional<Season> get(LocalDate bookingStartDate) {
@@ -49,19 +36,4 @@ public class SeasonService {
         return season.size() != 1 ? Optional.empty() : Optional.of((Season) season);
 
     }
-
-    // Get all seasons
-    public List<Season> getAll() { return seasonRepo.findAll(); }
-
-    // Update a season
-    public Optional<Season> update(Long id, Season season) {
-        season.setID(id);
-        return !(seasonRepo.existsById(id))
-                ? Optional.empty()
-                : Optional.of(save(season));
-    }
-
-    // Delete a season
-    public void delete(Long id) { seasonRepo.deleteById(id); }
-
 }

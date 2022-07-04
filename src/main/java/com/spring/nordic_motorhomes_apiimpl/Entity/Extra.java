@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(name = "extras")
-public class Extra {
+public class Extra extends GeneralEntity{
 
     @Id
     @SequenceGenerator(name ="extra_sequence",
