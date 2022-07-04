@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "seasons") // Naming the database table
-public class Season {
+public class Season extends GeneralEntity{
     // Attributes/Columns
     //  Primary key
     @Id

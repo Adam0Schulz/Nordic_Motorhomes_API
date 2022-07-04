@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Statuses")
-public class Status {
+public class Status extends GeneralEntity{
     // Attributes/Columns
     //  Primary key
     @Id

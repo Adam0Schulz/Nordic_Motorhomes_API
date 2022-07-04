@@ -1,48 +1,15 @@
 package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.Customer;
-import com.spring.nordic_motorhomes_apiimpl.Repository.CustomerRepository;
-import com.spring.nordic_motorhomes_apiimpl.Service.Crud.CrudServiceInter;
+import com.spring.nordic_motorhomes_apiimpl.Repository.GeneralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
-public class CustomerService implements CrudServiceInter<Customer> {
-
-    // Dependencies
-    private final CustomerRepository customerRepo;
+public class CustomerService extends GeneralService<Customer> {
 
     @Autowired
-    public CustomerService(CustomerRepository customerRepo) {
-        this.customerRepo = customerRepo;
+    public CustomerService(GeneralRepository<Customer> repo) {
+        super(repo);
     }
-
-    // Save a customer
-    public Customer save(Customer customer) {
-        return customerRepo.save(customer);
-    }
-
-    // Get a customer
-    public Optional<Customer> get(Long id) {
-        return customerRepo.findById(id);
-    }
-
-    // Get all customers
-    public List<Customer> getAll() {
-        return customerRepo.findAll();
-    }
-
-    // Update a customer
-    public Optional<Customer> update(Long id, Customer customer) {
-        customer.setID(id);
-        return !(customerRepo.existsById(id))
-                ? Optional.empty()
-                : Optional.of(save(customer));
-    }
-
-    // Delete a customer
-    public void delete(Long id) { customerRepo.deleteById(id); }
 }

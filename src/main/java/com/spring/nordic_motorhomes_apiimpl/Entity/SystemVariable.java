@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "system_variables") // Naming the database table
-public class SystemVariable {
+public class SystemVariable extends GeneralEntity{
 
     // Attributes/Columns
     //  Primary key

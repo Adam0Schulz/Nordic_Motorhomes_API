@@ -20,7 +20,6 @@ public class ExtraService {
         this.extraRepo = extraRepo;
     }
 
-    // Questionable methods to add - get extras by ids
 
     // Save a extra
     public Extra save(Extra extra) {

@@ -2,6 +2,7 @@ package com.spring.nordic_motorhomes_apiimpl.Service;
 
 import com.spring.nordic_motorhomes_apiimpl.Entity.*;
 import com.spring.nordic_motorhomes_apiimpl.Repository.BookingRepository;
+import com.spring.nordic_motorhomes_apiimpl.Repository.GeneralRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class BookingService {
+public class BookingService extends GeneralService<Booking> {
 
     // Dependencies
-    private final BookingRepository bookingRepo;
     private final StatusService statusSer;
     private final MotorhomeService motorhomeSer;
     private final CustomerService customerSer;
@@ -26,7 +26,7 @@ public class BookingService {
     private final SystemVariableService variableSer;
 
     @Autowired
-    public BookingService(BookingRepository bookingRepo,
+    public BookingService(GeneralRepository<Booking> repo,
                           StatusService statusSer,
                           MotorhomeService motorhomeService,
                           CustomerService customerSer,
@@ -34,7 +34,7 @@ public class BookingService {
                           ExtraService extraSer,
                           SeasonService seasonSer,
                           SystemVariableService variableSer) {
-        this.bookingRepo = bookingRepo;
+        super(repo);
         this.statusSer = statusSer;
         this.motorhomeSer = motorhomeService;
         this.customerSer = customerSer;
@@ -46,6 +46,12 @@ public class BookingService {
 
     // have multiple overloads
     // Save booking
+    @Override
+    public Booking save(Booking booking) {
+        // throw some kind of error
+        return null;
+    }
+
     public Optional<Booking> save(Booking booking, Long motorhomeID, Long customerID, Long employeeID, List<Long> extraIDs, Long statusID) {
 
         Optional<Motorhome> motorhome = motorhomeSer.get(motorhomeID);
@@ -72,27 +78,17 @@ public class BookingService {
 
         return !(motorhomeSer.isAvailable(motorhomeID, booking.getStartDate().toLocalDate(), booking.getEndDate().toLocalDate()))
                 ? Optional.empty()
-                : Optional.of(bookingRepo.save(booking));
-    }
-
-    // Get booking
-    public Optional<Booking> get(Long id) {
-        return bookingRepo.findById(id);
-    }
-
-    // Get bookings
-    public List<Booking> getAll() {
-        return bookingRepo.findAll();
+                : Optional.of(repo.save(booking));
     }
 
     // Get bookings - sorted
     public List<Booking> getAll(Sort sort) {
-        return bookingRepo.findAll(sort);
+        return repo.findAll(sort);
     }
 
     // Get bookings by status
     public List<Booking> getByStatus(String statusKeyword) {
-        return bookingRepo
+        return repo
                 .findAll()
                 .stream().filter(booking -> booking
                         .getStatus()
@@ -103,24 +99,13 @@ public class BookingService {
 
     // Get bookings by status - sorted
     public List<Booking> getByStatus(String statusKeyword, Sort sort) {
-        return bookingRepo
+        return repo
                 .findAll(sort)
                 .stream().filter(booking -> booking
                         .getStatus()
                         .getKeyword()
                         .equalsIgnoreCase(statusKeyword))
                 .collect(Collectors.toList());
-    }
-
-    // Update booking
-    public Optional<Booking> update(Long id, Booking booking) {
-        booking.setID(id);
-        return !(bookingRepo.existsById(id)) ? Optional.empty() : Optional.of(bookingRepo.save(booking));
-    }
-
-    // Delete booking
-    public void delete(Long id) {
-        bookingRepo.deleteById(id);
     }
 
     // Update/Change status of booking
@@ -146,7 +131,7 @@ public class BookingService {
                 .build();
         // Not sure if these two steps are required
         booking.get().setCancellation(cancell);
-        return Optional.of(bookingRepo.save(booking.get()));
+        return Optional.of(repo.save(booking.get()));
     }
 
     // Total price

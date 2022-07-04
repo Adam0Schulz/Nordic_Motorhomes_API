@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "cancellation_fees") // Naming the database table
-public class CancellationFee {
+public class CancellationFee extends GeneralEntity{
 
     // Attributes/Columns
     //  Primary key

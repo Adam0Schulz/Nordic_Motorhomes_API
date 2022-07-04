@@ -16,7 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @Table(name = "motorhomes") // Naming the database table
-public class Motorhome {
+public class Motorhome extends GeneralEntity{
 
     // Attributes/Columns
     //  Primary key

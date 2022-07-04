@@ -3,6 +3,7 @@ package com.spring.nordic_motorhomes_apiimpl.Service;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Motorhome;
 import com.spring.nordic_motorhomes_apiimpl.Entity.Status;
 import com.spring.nordic_motorhomes_apiimpl.Entity.SystemVariable;
+import com.spring.nordic_motorhomes_apiimpl.Repository.GeneralRepository;
 import com.spring.nordic_motorhomes_apiimpl.Repository.MotorhomeRepository;
 import com.spring.nordic_motorhomes_apiimpl.Service.StatusService;
 import com.spring.nordic_motorhomes_apiimpl.Service.SystemVariableService;
@@ -15,43 +16,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class MotorhomeService {
+public class MotorhomeService extends GeneralService<Motorhome> {
 
     // Dependencies
-    private final MotorhomeRepository motorhomeRepo;
     private final SystemVariableService systemVariableSer;
     private final StatusService statusSer;
 
     @Autowired
-    public MotorhomeService(MotorhomeRepository motorhomeRepo,
+    public MotorhomeService(GeneralRepository<Motorhome> repo,
                             SystemVariableService systemVariableSer,
                             StatusService statusSer) {
-        this.motorhomeRepo = motorhomeRepo;
+        super(repo);
         this.systemVariableSer = systemVariableSer;
         this.statusSer = statusSer;
     }
-
-    // Save motorhome
-    public Motorhome save(Motorhome motorhome) {
-        return motorhomeRepo.save(motorhome);
-    }
-
-    // Get motorhome
-    public Optional<Motorhome> get(Long id) {
-        return motorhomeRepo.findById(id);
-    }
-
-    // Get all motorhomes
-    public List<Motorhome> getAll() { return motorhomeRepo.findAll(); }
-
-    // Update motorhome
-    public Optional<Motorhome> update(Long id, Motorhome motorhome) {
-        motorhome.setID(id);
-        return !(motorhomeRepo.existsById(id)) ? Optional.empty() : Optional.of(save(motorhome));
-    }
-
-    // Delete motorhome
-    public void delete(Long id) { motorhomeRepo.deleteById(id); }
 
     // Check availability on a given date
     public boolean isAvailable(Long id, LocalDate date) {
